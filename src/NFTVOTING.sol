@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
+//deployed to  0x3b1597EF32B27c223B57ad9ccB1aF38a87A00A55
 contract NFTVOTING is ERC721, Ownable, ReentrancyGuard {
 
     struct NFTINFO {
@@ -24,7 +25,7 @@ contract NFTVOTING is ERC721, Ownable, ReentrancyGuard {
     event Voted(address indexed votedby, uint256 votedfor, uint256 Amountdonated);
 
     uint256 public rewardpool;
-    uint256 public mintingfees = 0.01 ether;
+   
     uint256 private s_tokencounter;
 
     mapping(uint256 => string) public s_tokenidtouri;
@@ -36,12 +37,10 @@ contract NFTVOTING is ERC721, Ownable, ReentrancyGuard {
     }
 
     function mintnft(string memory tokenUri) public payable {
-        require(msg.value >= mintingfees, "Not sufficient ether to mint NFT");
 
         s_tokenidtouri[s_tokencounter] = tokenUri;
         _safeMint(msg.sender, s_tokencounter);
 
-        rewardpool += msg.value;
 
         NFTINFO storage nftinformation = nftinfo[s_tokencounter];
         nftinformation.mintedby = msg.sender;
@@ -103,6 +102,20 @@ contract NFTVOTING is ERC721, Ownable, ReentrancyGuard {
         (bool sent,) = owner().call{value: commission}("");
         require(sent, "Commission transfer to owner failed");
     }
+    
+    function returncurrentrewardpool() public view returns(uint256 ){
+        return rewardpool;
+    }
 
+    function getAllMintedNFTs() public view returns (NFTINFO[] memory) {
+    uint256 totalNFTs = s_tokencounter; 
+    NFTINFO[] memory allNFTs = new NFTINFO[](totalNFTs);
+
+    for (uint256 i = 0; i < totalNFTs; i++) {
+        allNFTs[i] = nftinfo[i];
+    }
+
+    return allNFTs;
+}
   
 }
