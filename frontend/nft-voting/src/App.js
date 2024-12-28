@@ -436,6 +436,7 @@ const App = () => {
             setWinner(winnerTokenId.toString());
             setError("Winner selected successfully!");
         } catch (err) {
+            alert('only owner can select winner');
             setError(err.message || "Selecting winner failed.");
         }
     };
@@ -450,6 +451,7 @@ const App = () => {
             setError("Winning amount sent successfully!");
             fetchRewardPool();
         } catch (err) {
+            alert('only owner can send winning amount');
             setError(err.message || "Sending winning amount failed.");
         }
     };
