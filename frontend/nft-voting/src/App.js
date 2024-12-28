@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ethers, BrowserProvider } from 'ethers';
 import axios from 'axios';
+import "./App.css";
 
 const PINATA_API_KEY = '223553f88ea60420fae4';
 const PINATA_SECRET_KEY = '36b531be959f28db2b3a9b8672fe4243dd82ccf518624ebbffd1b5b1280ec78d';
@@ -389,16 +390,37 @@ const App = () => {
             const provider = new BrowserProvider(window.ethereum);
             const contract = new ethers.Contract(contractAddress, contractABI, provider);
             const nfts = await contract.getAllMintedNFTs();
-            setNfts(
-                nfts.map((nft, index) => ({
-                    tokenId: nft.tokenID.toString(),
-                    imageUrl: nft.tokenuri, // This should already have the correct IPFS URL from Pinata
-                    votes: nft.votes.toString(),
-                    mintedBy: nft.mintedby,
-                }))
+            
+            // Map over NFTs and fetch metadata for each
+            const nftsWithMetadata = await Promise.all(
+                nfts.map(async (nft) => {
+                    try {
+                        // Fetch metadata from IPFS
+                        const response = await axios.get(nft.tokenuri);
+                        const metadata = response.data;
+                        
+                        return {
+                            tokenId: nft.tokenID.toString(),
+                            imageUrl: metadata.image, // Get image URL from metadata
+                            votes: nft.votes.toString(),
+                            mintedBy: nft.mintedby,
+                            name: metadata.name,
+                            description: metadata.description
+                        };
+                    } catch (err) {
+                        console.error(`Error fetching metadata for token ${nft.tokenID}:`, err);
+                        return {
+                            tokenId: nft.tokenID.toString(),
+                            imageUrl: nft.tokenuri, // Fallback to tokenuri if metadata fetch fails
+                            votes: nft.votes.toString(),
+                            mintedBy: nft.mintedby
+                        };
+                    }
+                })
             );
-        } catch (err) {
-            console.error("Error fetching NFTs:", err);
+    
+            setNfts(nftsWithMetadata);
+        } catch (err) {console.error("Error fetching NFTs:", err);
             setError("Failed to fetch NFTs.");
         } finally {
             setIsLoading(false);
@@ -432,142 +454,152 @@ const App = () => {
         }
     };
     
-
     return (
-        <div className="container mx-auto p-4">
-    <h1 className="text-3xl font-bold mb-4">NFT Voting App</h1>
+        <div className="app-container">
+            <div className="content-wrapper">
+                <div className="header">
+                    <h1 className="title">NFT Voting Platform</h1>
 
-    {!walletAddress && (
-        <button 
-            className="bg-blue-500 text-white px-4 py-2 rounded"
-            onClick={connectButton}
-        >
-            Connect Wallet
-        </button>
-    )}
-    
-
-    {walletAddress && (
-        <div className="space-y-6">
-            <p className="text-gray-600">Wallet Address: {walletAddress}</p>
-            
-            <div className="border p-4 rounded">
-                <h2 className="text-xl font-semibold mb-2">Mint NFT</h2>
-                <input 
-                    type="file" 
-                    onChange={handleFileUpload}
-                    className="mb-2"
-                />
-                <button 
-                    onClick={mintNFT} 
-                    disabled={isUploading}
-                    className="bg-green-500 text-white px-4 py-2 rounded disabled:opacity-50"
-                >
-                    {isUploading ? "Uploading..." : "Mint NFT"}
-                </button>
-            </div>
-            
-            <div className="border p-4 rounded">
-                <h2 className="text-xl font-semibold mb-2">Vote for NFT</h2>
-                <div className="space-y-2">
-                    <input 
-                        type="number" 
-                        placeholder="Token ID" 
-                        onChange={(e) => setTokenId(e.target.value)}
-                        className="border p-2 rounded w-full"
-                    />
-                    <input 
-                        type="number" 
-                        placeholder="Amount (ETH)" 
-                        onChange={(e) => setAmount(e.target.value)}
-                        className="border p-2 rounded w-full"
-                    />
-                    <button 
-                        onClick={voteNFT}
-                        className="bg-purple-500 text-white px-4 py-2 rounded"
-                    >
-                        Vote
-                    </button>
+                    {!walletAddress && (
+                        <button 
+                            onClick={connectButton} 
+                            className="connect-button"
+                        >
+                            Connect Wallet
+                        </button>
+                    )}
                 </div>
-            </div>
-            
-            <div className="border p-4 rounded">
-                <h2 className="text-xl font-semibold mb-2">Reward Pool</h2>
-                <p className="text-lg">{rewardPool} ETH</p>
-                <button 
-                    onClick={fetchRewardPool}
-                    className="bg-blue-500 text-white px-4 py-2 rounded mt-2"
-                >
-                    Refresh Reward Pool
-                </button>
-            </div>
-            
-            <div className="border p-4 rounded">
-                <h2 className="text-xl font-semibold mb-2">Minted NFTs</h2>
-                <button 
-                    onClick={fetchMintedNFTs}
-                    className="bg-blue-500 text-white px-4 py-2 rounded mb-4"
-                >
-                    Refresh NFTs
-                </button>
-                
-                {isLoading ? (
-                    <p>Loading NFTs...</p>
-                ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {nfts.map((nft) => (
-                            <div key={nft.tokenId} className="border rounded p-4">
-                                <img 
-                                    src={nft.imageUrl} 
-                                    alt={`NFT ${nft.tokenId}`} 
-                                    className="w-full h-48 object-cover rounded mb-2"
-                                />
-                              
-                                <div className="space-y-1">
-                                    <p className="font-semibold">Token ID: {nft.tokenId}</p>
-                                    <p>Votes: {nft.votes}</p>
-                                    <p className="text-sm truncate">Minted by: {nft.mintedBy}</p>
-                                    {nft.name && <p className="font-medium">{nft.name}</p>}
-                                    {nft.description && (
-                                        <p className="text-sm text-gray-600">{nft.description}</p>
-                                    )}
-                                    
-                                </div>
+
+                {walletAddress && (
+                    <div className="wallet-section">
+                        <div className="wallet-address">
+                            <p>{walletAddress}</p>
+                        </div>
+
+                        <div className="feature-grid">
+                            <div className="card">
+                                <h2>Mint NFT</h2>
+                                <label>
+                                    <span>Upload Image</span>
+                                    <input 
+                                        type="file" 
+                                        onChange={handleFileUpload}
+                                        className="file-input"
+                                    />
+                                </label>
+                                <button 
+                                    onClick={mintNFT} 
+                                    disabled={isUploading}
+                                    className="action-button"
+                                >
+                                    {isUploading ? "Uploading..." : "Mint NFT"}
+                                </button>
                             </div>
-                        ))}
+
+                            <div className="card">
+                                <h2>Vote for NFT</h2>
+                                <input 
+                                    type="number" 
+                                    placeholder="Token ID" 
+                                    onChange={(e) => setTokenId(e.target.value)}
+                                    className="input-field"
+                                />
+                                <input 
+                                    type="number" 
+                                    placeholder="Amount (ETH)" 
+                                    onChange={(e) => setAmount(e.target.value)}
+                                    className="input-field"
+                                />
+                                <button 
+                                    onClick={voteNFT} 
+                                    className="action-button"
+                                >
+                                    Cast Vote
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="card">
+                            <div className="reward-pool">
+                                <h2>Current Reward Pool</h2>
+                                <p>{rewardPool} ETH</p>
+                            </div>
+                            <button 
+                                onClick={fetchRewardPool} 
+                                className="action-button"
+                            >
+                                Refresh Pool
+                            </button>
+                        </div>
+
+                        <div className="card">
+                            <div className="gallery-header">
+                                <h2>NFT Gallery</h2>
+                                <button 
+                                    onClick={fetchMintedNFTs} 
+                                    className="action-button"
+                                >
+                                    Refresh Gallery
+                                </button>
+                            </div>
+                            {isLoading ? (
+                                <div className="loader"></div>
+                            ) : (
+                                <div className="gallery-grid">
+                                    {nfts.map((nft) => (
+                                        <div key={nft.tokenId} className="gallery-item">
+                                            <img 
+                                                src={nft.imageUrl} 
+                                                alt={`NFT ${nft.tokenId}`} 
+                                                className="gallery-image"
+                                            />
+                                            <div className="gallery-info">
+                                                <p>Token ID: {nft.tokenId}</p>
+                                                <p>Votes: {nft.votes}</p>
+                                                <p>Owner: {nft.mintedBy}</p>
+                                                {nft.name && <p>{nft.name}</p>}
+                                                {nft.description && <p>{nft.description}</p>}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="card">
+                            <h2>Winner Selection</h2>
+                            <div className="winner-actions">
+                                <button 
+                                    onClick={selectWinner} 
+                                    className="action-button winner-button"
+                                >
+                                    Select Winner
+                                </button>
+                                <button 
+                                    onClick={sendWinningAmount} 
+                                    className="action-button winner-button"
+                                >
+                                    Send Prize
+                                </button>
+                            </div>
+                            {winner !== null && (
+                                <div className="winner-display">
+                                    <p>Winner Token ID: {winner}</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {error && (
+                    <div className="error-message">
+                        {error}
                     </div>
                 )}
             </div>
-            
-            <div className="border p-4 rounded">
-                <h2 className="text-xl font-semibold mb-2">Winner Selection</h2>
-                <button 
-                    onClick={selectWinner}
-                    className="bg-yellow-500 text-white px-4 py-2 rounded mr-2"
-                >
-                    Select Winner
-                </button>
-                <button 
-                    onClick={sendWinningAmount}
-                    className="bg-green-500 text-white px-4 py-2 rounded"
-                >
-                    Send Winning Amount
-                </button>
-                {winner !== null && (
-                    <p className="mt-2">Winner Token ID: {winner}</p>
-                )}
-            </div>
         </div>
-    )}
-
-    {error && (
-        <div className="mt-4 p-4 bg-red-100 text-red-700 rounded">
-            {error}
-        </div>
-    )}
-</div>
-
     );
 };
+
 
 export default App;
