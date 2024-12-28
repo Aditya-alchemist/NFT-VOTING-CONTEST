@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/NFT-VOTING-CONTEST/static/css/main.dff44255.css",
+    "main.js": "/NFT-VOTING-CONTEST/static/js/main.7bd48557.js",
+    "static/js/453.3e0e8d27.chunk.js": "/NFT-VOTING-CONTEST/static/js/453.3e0e8d27.chunk.js",
+    "index.html": "/NFT-VOTING-CONTEST/index.html",
+    "main.dff44255.css.map": "/NFT-VOTING-CONTEST/static/css/main.dff44255.css.map",
+    "main.7bd48557.js.map": "/NFT-VOTING-CONTEST/static/js/main.7bd48557.js.map",
+    "453.3e0e8d27.chunk.js.map": "/NFT-VOTING-CONTEST/static/js/453.3e0e8d27.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.dff44255.css",
+    "static/js/main.7bd48557.js"
+  ]
+}
