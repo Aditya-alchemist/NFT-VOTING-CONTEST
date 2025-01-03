@@ -124,7 +124,7 @@ https://github.com/user-attachments/assets/2e9579a3-d82f-43ed-8bf5-e4a897bcee89
 
 
 ## More updates
-Stay tuned more updated are underway to make nft minting process gasless
+Stay tuned more updates are underway to make nft minting process gasless
 
 ## 🤝 Contributing
 
