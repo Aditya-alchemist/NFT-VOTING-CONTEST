@@ -6,13 +6,14 @@
 
 - <a href="#overview"> Overview </a>
 - <a href="#project-insights"> Project Insights </a>
-- <a href="#vision"> 🇮🇳 The Vision: Digitising Governance at the Gram Panchayat Level  </a>
 - <a href="#demo"> Live Demo </a>
-- <a href="#screenshots"> Screenshots </a>
-- <a href="#core-features">Core Features</a>
-- <a href="#technology-stack"> Technology Stack </a>
-- <a href="#setup-instructions"> Setup Instructions </a>
-- <a href="#roadmap-enhancements">  Roadmap & Future Enhancements </a>
+- <a href="#features">Features</a>
+- <a href="#smart-contract-functions"> Smart Contract Functions </a>
+- <a href="#frontend-features">Frontend Features</a>
+- <a href="#prerequisites">Prerequisites</a>
+- <a href="#installation">Installation</a>
+- <a href="#usage"> Usage </a>
+- <a href="#more-updates">More updates</a>
 - <a href="#acknowledgments">Acknowledgments</a>
 - <a href="#contact">Contact</a>
 - <a href="#how-to-contribute">How to Contribute</a>
@@ -228,8 +229,8 @@ https://github.com/user-attachments/assets/2e9579a3-d82f-43ed-8bf5-e4a897bcee89
 
 <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif" width="100%">
 
-<h2 id="core-features">  🌟 Core Features </h2>
-## More updates
+<h4 id="more-updates">More updates</h4>
+
 Stay tuned more updates are underway to make nft minting process gasless
 
 <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif" width="100%">
